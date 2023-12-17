@@ -1,6 +1,7 @@
 .data
     prompt: .asciiz "Enter a number between -9999 and 9999:\n"
     invalid_prompt: .asciiz "Invalid number. number must be between -9999 and 9999:\n"
+    new_line: .asciiz "\n"
     
 .text
     main:
@@ -21,10 +22,15 @@
 	# Branch if grater than 9999
         bgt $t0, 9999, invalid_input
       
-       # Print number
+        # Print number
         li $v0, 1
         move $a0, $t0
-        syscall   
+        syscall  
+        
+        # Print new line
+        li $v0, 4
+        la $a0, new_line
+        syscall 
         
         # Counter for 16 bits
         li $t1, 16
@@ -43,14 +49,17 @@
         li $a0, '0'
     
     print_bit:
+    	# Print a single bit
+    	li $v0, 11
+        syscall   
+        
     	# Decrement counter by one
-    	li $t1, -1
+    	addi $t1, $t1, -1
     	# Shift right to get next bit
     	srl $t0, $t0, 1
+    	# Loop until conter is zero 
+    	bnez $t1, print_binary
     	
-    	
-    
-    
         # Exit the program 
         li $v0, 10
         syscall
