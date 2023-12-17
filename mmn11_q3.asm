@@ -17,6 +17,8 @@
         syscall
         # Store the number in $t0
         move $t0, $v0
+        # Store the number in $t4
+        move $t4, $t0
         # Branch if less than -9999
         blt $t0, -9999, invalid_input
 	# Branch if grater than 9999
@@ -35,18 +37,22 @@
         # Counter for 16 bits
         li $t1, 16
         # Mask to extract each bit
-        li $t2, 1 
+        li $t2, 32768 
+        
         
     print_binary:
         # Extract a bit using AND operation
         and $t3, $t0, $t2
-        # Check if bit is equal to 0
+        # Check if bit is equal to zero
         beqz $t3, load_zero
+        # If the bit value is not zero, load one
     	li $a0, '1'
      	j print_bit
     
+    
     load_zero:
         li $a0, '0'
+    
     
     print_bit:
     	# Print a single bit
@@ -55,8 +61,8 @@
         
     	# Decrement counter by one
     	addi $t1, $t1, -1
-    	# Shift right to get next bit
-    	srl $t0, $t0, 1
+    	# Shift left to get next bit
+    	sll $t0, $t0, 1
     	# Loop until conter is zero 
     	bnez $t1, print_binary
     	
@@ -64,7 +70,6 @@
         li $v0, 10
         syscall
     
-
     
     invalid_input:
         # Print invalid prompt 
