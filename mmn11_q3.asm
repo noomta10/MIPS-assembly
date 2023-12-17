@@ -24,22 +24,14 @@
 	# Branch if grater than 9999
         bgt $t0, 9999, invalid_input
       
-        # Print number
-        li $v0, 1
-        move $a0, $t0
-        syscall  
-        
-        # Print new line
-        li $v0, 4
-        la $a0, new_line
-        syscall 
-        
+     
+     set_variables:
         # Counter for 16 bits
         li $t1, 16
         # Mask to extract each bit
         li $t2, 32768 
         
-        
+     
     print_binary:
         # Extract a bit using AND operation
         and $t3, $t0, $t2
@@ -48,8 +40,8 @@
         # If the bit value is not zero, load one
     	li $a0, '1'
      	j print_bit
-    
-    
+        
+
     load_zero:
         li $a0, '0'
     
@@ -58,15 +50,56 @@
     	# Print a single bit
     	li $v0, 11
         syscall   
-        
     	# Decrement counter by one
     	addi $t1, $t1, -1
     	# Shift left to get next bit
     	sll $t0, $t0, 1
-    	# Loop until conter is zero 
+    	# Loop until counter is zero 
     	bnez $t1, print_binary
+        
+        
+    print_new_line:
+        # Print new line
+        li $v0, 4
+        la $a0, new_line
+        syscall 
+        
+          
+    set_reverse_variables:
+        # Reset counter for 16 bits
+        li $t1, 16
+        # Mask to extract each bit 
+        li $t2, 1
+    
+    
+    print_binary_reverse:
+	# Extract a bit using AND operation
+        and $t5, $t4, $t2
+        # Check if bit is equal to zero
+        beqz $t5, load_zero_reverse
+        # If the bit value is not zero, load one
+    	li $a0, '1'
+     	j print_bit_reverse
+
+    
+    load_zero_reverse:
+    	li $a0, '0'
+
+
+    print_bit_reverse:
+    	# Print a single bit
+    	li $v0, 11
+        syscall   
+    	# Decrement counter by one
+    	addi $t1, $t1, -1
+    	# Shift right to get next bit
+    	srl $t4, $t4, 1
+    	# Loop until counter is zero 
+    	bnez $t1, print_binary_reverse
     	
-        # Exit the program 
+    	
+    exit_program:     
+    	# Exit the program 
         li $v0, 10
         syscall
     
