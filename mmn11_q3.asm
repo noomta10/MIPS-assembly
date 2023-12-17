@@ -24,11 +24,38 @@
        # Print number
         li $v0, 1
         move $a0, $t0
-        syscall
+        syscall   
         
+        # Counter for 16 bits
+        li $t1, 16
+        # Mask to extract each bit
+        li $t2, 1 
+        
+    print_binary:
+        # Extract a bit using AND operation
+        and $t3, $t0, $t2
+        # Check if bit is equal to 0
+        beqz $t3, load_zero
+    	li $a0, '1'
+     	j print_bit
+    
+    load_zero:
+        li $a0, '0'
+    
+    print_bit:
+    	# Decrement counter by one
+    	li $t1, -1
+    	# Shift right to get next bit
+    	srl $t0, $t0, 1
+    	
+    	
+    
+    
         # Exit the program 
         li $v0, 10
         syscall
+    
+
     
     invalid_input:
         # Print invalid prompt 
