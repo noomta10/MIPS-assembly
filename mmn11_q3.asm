@@ -7,10 +7,18 @@
 # $t6 = stores the decimal value of the reverse binary
 # $t7 = mask to extract bits for decimal print
 
+.macro print_new_line  
+	li $v0,11
+	li $a0,'\n'
+        syscall 
+.end_macro
+
+
 .data
     prompt: .asciiz "Enter a number between -9999 and 9999:\n"
     invalid_prompt: .asciiz "Invalid number. number must be between -9999 and 9999:\n"
     new_line: .asciiz "\n"
+    
     
 .text
     main:
@@ -58,14 +66,10 @@
     	sll $t0, $t0, 1              # Shift left to get next bit    	
     	bnez $t1, print_binary_loop  # Loop until counter is zero 
         
-        
-    print_new_line:
-        # Print new line
-        li $v0, 4
-        la $a0, new_line
-        syscall 
-        
           
+    print_new_line
+      
+              
     set_reverse_variables:
         li $t1, 16      # Reset counter for 16 bits      
         li $t2, 0x0001  # Mask to extract each bit      
@@ -78,6 +82,7 @@
         beqz $t3, load_zero_reverse  # Check if bit is equal to zero       
     	li $a0, '1'                  # If the bit value is not zero, load one   	
     	or $t6, $t6, $t7             # Add to decimal value using OR operation
+    	srl $t7, $t7, 1              # Shift right decimal mask
      	j print_bit_reverse
 
     
@@ -90,18 +95,12 @@
     	# Print a single bit
     	li $v0, 11
         syscall   
-    	# Decrement counter by one
-    	addi $t1, $t1, -1
-    	# Shift right to get next bit
-    	srl $t4, $t4, 1
-    	# Loop until counter is zero 
-    	bnez $t1, print_binary_reverse_loop
+    	addi $t1, $t1, -1                    # Decrement counter by one
+    	srl $t4, $t4, 1                      # Shift right to get next bit   	
+    	bnez $t1, print_binary_reverse_loop  # Loop until counter is zero 
     	
     	
-    print_another_new_line:
-    	li $v0, 4
-        la $a0, new_line
-        syscall 
+    print_new_line
     	
     
     debug:
@@ -120,6 +119,5 @@
         # Print invalid prompt 
         li $v0, 4
         la $a0, invalid_prompt
-        syscall
-        # Jump back to get_input
-        j get_input    
+        syscall        
+        j get_input  # Jump back to get_input
