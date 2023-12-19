@@ -1,3 +1,11 @@
+# Registers:
+# $t0 = user's number  
+# $t1 = counter for 16 bits
+# $t2 = mask to extract bits for binary print
+# $t3 = placeholder to store a bit
+# $t4, $t5 = copy of user's number 
+
+
 .data
     prompt: .asciiz "Enter a number between -9999 and 9999:\n"
     invalid_prompt: .asciiz "Invalid number. number must be between -9999 and 9999:\n"
@@ -17,8 +25,9 @@
         syscall
         # Store the number in $t0
         move $t0, $v0
-        # Store the number in $t4
+        # Store the number in $t4 and $t5
         move $t4, $t0
+        move $t5, $t0
         # Branch if less than -9999
         blt $t0, -9999, invalid_input
 	# Branch if grater than 9999
@@ -74,9 +83,9 @@
     
     print_binary_reverse:
 	# Extract a bit using AND operation
-        and $t5, $t4, $t2
+        and $t3, $t4, $t2
         # Check if bit is equal to zero
-        beqz $t5, load_zero_reverse
+        beqz $t3, load_zero_reverse
         # If the bit value is not zero, load one
     	li $a0, '1'
      	j print_bit_reverse
@@ -98,6 +107,27 @@
     	bnez $t1, print_binary_reverse
     	
     	
+    print_another_new_line:
+    	li $v0, 4
+        la $a0, new_line
+        syscall 
+    	li $v0, 1
+    	move $a0, $t5
+    	syscall
+    	
+    	
+    set_decimal_values:
+    	# Initialize decimal value
+    	li $t6, 0
+    	# Set counter 
+    	li $t1, 16
+    	
+    			
+    loop_reverse_binary_to_decimal:
+    	# Extract a bit using AND operation
+        and $t3, $t4, $t2
+    		
+    
     exit_program:     
     	# Exit the program 
         li $v0, 10
