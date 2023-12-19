@@ -3,9 +3,10 @@
 # $t1 = counter for 16 bits
 # $t2 = mask to extract bits for binary print
 # $t3 = placeholder to store a bit
-# $t4, $t5 = copy of user's number 
-# $t6 = stores the decimal value of the reverse binary
-# $t7 = mask to extract bits for decimal print
+# $t4 = copy of user's number 
+# $t5 = stores the decimal value of the reverse binary
+# $t6 = mask to extract bits for decimal print
+
 
 .macro print_new_line  
 	li $v0,11
@@ -33,10 +34,10 @@
         li $v0, 5 
         syscall
         
-        # Store the number in $t0, $t4 and $t5
+        # Store the number in $t0, $t4 and $t7
         move $t0, $v0
         move $t4, $t0
-        move $t5, $t0
+
                 
         blt $t0, -9999, invalid_input  # Branch if less than -9999	
         bgt $t0, 9999, invalid_input   # Branch if grater than 9999
@@ -66,29 +67,29 @@
     	sll $t0, $t0, 1              # Shift left to get next bit    	
     	bnez $t1, print_binary_loop  # Loop until counter is zero 
         
-          
+    
     print_new_line
       
               
     set_reverse_variables:
         li $t1, 16      # Reset counter for 16 bits      
         li $t2, 0x0001  # Mask to extract each bit      
-        li $t6, 0       # Initialize decimal value of reverse binary      
-    	li $t7, 0x8000  # Mask to extract decimal value of reverse binary
+        li $t5, 0       # Initialize decimal value of reverse binary      
+    	li $t6, 0x8000  # Mask to extract decimal value of reverse binary
     
     
     print_binary_reverse_loop:	
         and $t3, $t4, $t2            # Extract a bit using AND operation        
         beqz $t3, load_zero_reverse  # Check if bit is equal to zero       
     	li $a0, '1'                  # If the bit value is not zero, load one   	
-    	or $t6, $t6, $t7             # Add to decimal value using OR operation
-    	srl $t7, $t7, 1              # Shift right decimal mask
+    	or $t5, $t5, $t6             # Add to decimal value using OR operation
+    	srl $t6, $t6, 1              # Shift right decimal mask
      	j print_bit_reverse
 
     
     load_zero_reverse:   	
     	li $a0, '0'      # Load zero     	
-    	srl $t7, $t7, 1  # Shift right decimal mask
+    	srl $t6, $t6, 1  # Shift right decimal mask
     	
 
     print_bit_reverse:
@@ -103,9 +104,20 @@
     print_new_line
     	
     
-    debug:
+    get_decimal: 
+    	andi $t3, $t5, 0x8000 # Get MSB to $t3
+    	bnez $t3, negative # If MSB is one, treat negative
+    	j print_decimal
+    	
+    	
+    negative:
+    	lui $t3, 0xffff 
+    
+    
+    print_decimal:
+    	or $t3, $t3, $t5
     	li $v0, 1
-    	move $a0, $t6
+    	move $a0, $t3
     	syscall
     
     
