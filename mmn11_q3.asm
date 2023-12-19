@@ -79,6 +79,7 @@
         li $t1, 16
         # Mask to extract each bit 
         li $t2, 1
+        li $t6, 0
     
     
     print_binary_reverse:
@@ -111,21 +112,18 @@
     	li $v0, 4
         la $a0, new_line
         syscall 
-    	li $v0, 1
-    	move $a0, $t5
-    	syscall
     	
     	
-    set_decimal_values:
+    #set_decimal_values:
     	# Initialize decimal value
-    	li $t6, 0
+    #	li $t6, 0
     	# Set counter 
-    	li $t1, 16
+    #	li $t1, 16
     	
     			
-    loop_reverse_binary_to_decimal:
+    #loop_reverse_binary_to_decimal:
     	# Extract a bit using AND operation
-        and $t3, $t4, $t2
+        #and $t3, $t4, $t2
     		
     
     exit_program:     
