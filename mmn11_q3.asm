@@ -4,6 +4,7 @@
 # $t2 = mask to extract bits for binary print
 # $t3 = placeholder to store a bit
 # $t4, $t5 = copy of user's number 
+# $t6 = stores the decimal value of the reverse binary
 
 
 .data
@@ -79,8 +80,10 @@
         li $t1, 16
         # Mask to extract each bit 
         li $t2, 1
+        # Initialize decimal value of reverse binary
         li $t6, 0
-    
+        # Mask to extract decimal value of reverse binary
+    	li $t7, 0x8000
     
     print_binary_reverse:
 	# Extract a bit using AND operation
@@ -89,11 +92,14 @@
         beqz $t3, load_zero_reverse
         # If the bit value is not zero, load one
     	li $a0, '1'
+    	or $t6, $t6, $t7
      	j print_bit_reverse
 
     
     load_zero_reverse:
     	li $a0, '0'
+    	srl $t7, $t7, 1
+    	
 
 
     print_bit_reverse:
@@ -113,18 +119,12 @@
         la $a0, new_line
         syscall 
     	
-    	
-    #set_decimal_values:
-    	# Initialize decimal value
-    #	li $t6, 0
-    	# Set counter 
-    #	li $t1, 16
-    	
-    			
-    #loop_reverse_binary_to_decimal:
-    	# Extract a bit using AND operation
-        #and $t3, $t4, $t2
-    		
+    
+    debug:
+    	li $v0, 1
+    	move $a0, $t6
+    	syscall
+    
     
     exit_program:     
     	# Exit the program 
