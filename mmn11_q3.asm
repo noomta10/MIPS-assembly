@@ -105,13 +105,13 @@
     	
     
     get_decimal: 
-    	andi $t3, $t5, 0x8000 # Get MSB to $t3
-    	bnez $t3, negative # If MSB is one, treat negative
+    	andi $t3, $t5, 0x8000 # Put MSB to $t3
+    	bnez $t3, negative    # If MSB is one, treat negative
     	j print_decimal
     	
     	
     negative:
-    	lui $t3, 0xffff 
+    	lui $t3, 0xffff # Sign extend
     
     
     print_decimal:
