@@ -126,7 +126,7 @@
         li $v0, 10
         syscall
     
-    
+     
     invalid_input:
         # Print invalid prompt 
         li $v0, 4
