@@ -12,14 +12,14 @@
 # $t6 = mask to extract bits for decimal print
 
 .macro  print_string(%x)
-	# Print new line
-	li $v0,11
-	li $a0,'\n'
-        syscall
-        # Print string
-	li $v0, 4
-	la $a0, %x
-	syscall
+    # Print new line
+    li $v0,11
+    li $a0,'\n'
+    syscall
+    # Print string
+    li $v0, 4
+    la $a0, %x
+    syscall
 .end_macro
 
 
@@ -35,7 +35,7 @@
     main:
         # Prompt the user to enter a number
         print_string(prompt)
-        
+	        
         
     get_input:
         # Get the user's number
