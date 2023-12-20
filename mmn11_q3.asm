@@ -35,40 +35,32 @@
     main:
         # Prompt the user to enter a number
         print_string(prompt)
-	        
-        
+	              
     get_input:
         # Get the user's number
         li $v0, 5 
-        syscall
-        
+        syscall        
         # Store the number in $t0, $t4 and $t7
         move $t0, $v0
-        move $t4, $t0
-          
+        move $t4, $t0         
         blt $t0, -9999, invalid_input  # Branch if less than -9999	
         bgt $t0, 9999, invalid_input   # Branch if grater than 9999
-      
-     
+          
      print_string(binary_prompt)
-     
-     
+         
      set_variables:
         li $t1, 16      # Counter for 16 bits  
         li $t2, 0x8000  # Mask to extract each bit
-        
-     
+             
     print_binary_loop:      
         and $t3, $t0, $t2    # Extract a bit using AND operation       
         beqz $t3, load_zero  # Check if bit is equal to zero        
     	li $a0, '1'          # If the bit value is not zero, load one
      	j print_bit
         
-
     load_zero:
         li $a0, '0'
-    
-    
+       
     print_bit:
     	# Print a single bit
     	li $v0, 11
@@ -76,18 +68,15 @@
     	addi $t1, $t1, -1            # Decrement counter by one    	
     	sll $t0, $t0, 1              # Shift left to get next bit    	
     	bnez $t1, print_binary_loop  # Loop until counter is zero 
-        
-    
+         
     print_string(reverse_binary_prompt)  
-    
-                        
+                           
     set_reverse_variables:
         li $t1, 16      # Reset counter for 16 bits      
         li $t2, 0x0001  # Mask to extract each bit      
         li $t5, 0       # Initialize decimal value of reverse binary      
     	li $t6, 0x8000  # Mask to extract decimal value of reverse binary
-    
-    
+       
     print_binary_reverse_loop:	
         and $t3, $t4, $t2            # Extract a bit using AND operation        
         beqz $t3, load_zero_reverse  # Check if bit is equal to zero       
@@ -95,13 +84,11 @@
     	or $t5, $t5, $t6             # Add to decimal value using OR operation
     	srl $t6, $t6, 1              # Shift right decimal mask
      	j print_bit_reverse
-
     
     load_zero_reverse:   	
     	li $a0, '0'      # Load zero     	
     	srl $t6, $t6, 1  # Shift right decimal mask
     	
-
     print_bit_reverse:
     	# Print a single bit
     	li $v0, 11
@@ -109,21 +96,17 @@
     	addi $t1, $t1, -1                    # Decrement counter by one
     	srl $t4, $t4, 1                      # Shift right to get next bit   	
     	bnez $t1, print_binary_reverse_loop  # Loop until counter is zero 
-    	
-    	
+    	    	
     print_string(decimal_prompt)	
-    
-    
+       
     get_decimal: 
     	andi $t3, $t5, 0x8000 # Put MSB to $t3
     	bnez $t3, negative    # If MSB is one, treat negative
     	j print_decimal
     	
-    	
     negative:
     	lui $t3, 0xffff # Sign extend
-    
-    
+        
     print_decimal:
     	or $t3, $t3, $t5 # Sign extend
     	# Print decimal value
@@ -131,12 +114,10 @@
     	move $a0, $t3
     	syscall
     
-    
     exit_program:     
     	# Exit the program 
         li $v0, 10
-        syscall
-    
+        syscall    
      
     invalid_input:
         # Print invalid prompt 
