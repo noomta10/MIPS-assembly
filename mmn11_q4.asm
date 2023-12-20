@@ -1,8 +1,6 @@
 # Registers:
 # $t0 = copy of bool array
 # $t1 = first digit
-# $t2 = second digit
-# $t3 = third digit
 
 .macro  print_string(%x)
     # Print new line
@@ -47,7 +45,3 @@
    exit_program:
    	li $v0, 10
    	syscall
-    	
-
-    	
-    	
