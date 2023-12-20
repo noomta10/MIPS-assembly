@@ -1,4 +1,4 @@
-# description:
+# Description:
 # This program takes a 4 digit number from the user.
 # Then it prints its binary value, its reverse binary value and the decimal value of the reverse binary value.
 
