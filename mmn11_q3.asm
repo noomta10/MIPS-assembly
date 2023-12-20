@@ -7,6 +7,14 @@
 # $t5 = stores the decimal value of the reverse binary
 # $t6 = mask to extract bits for decimal print
 
+.macro  print_string(%x)
+	li $v0,11
+	li $a0,'\n'
+        syscall
+	li $v0, 4
+	la $a0, %x
+	syscall
+.end_macro
 
 .macro print_new_line  
 	li $v0,11
@@ -19,14 +27,14 @@
     prompt: .asciiz "Enter a number between -9999 and 9999:\n"
     invalid_prompt: .asciiz "Invalid number. number must be between -9999 and 9999:\n"
     new_line: .asciiz "\n"
-    
+    binary_prompt: .asciiz "Binary representation in 16 bits: "
+    reverse_binary_prompt: .asciiz "Reverse binary representation in 16 bits: "
+    decimal_prompt: .asciiz "Decimal value of reverse binary: "
     
 .text
     main:
         # Prompt the user to enter a number
-        li $v0, 4
-        la $a0, prompt
-        syscall
+        print_string(prompt)
         
         
     get_input:
@@ -42,6 +50,9 @@
         blt $t0, -9999, invalid_input  # Branch if less than -9999	
         bgt $t0, 9999, invalid_input   # Branch if grater than 9999
       
+     
+     print_string(binary_prompt)
+     
      
      set_variables:
         li $t1, 16      # Counter for 16 bits  
@@ -68,8 +79,8 @@
     	bnez $t1, print_binary_loop  # Loop until counter is zero 
         
     
-    print_new_line
-      
+    #print_new_line
+    print_string(reverse_binary_prompt)  
               
     set_reverse_variables:
         li $t1, 16      # Reset counter for 16 bits      
@@ -101,8 +112,8 @@
     	bnez $t1, print_binary_reverse_loop  # Loop until counter is zero 
     	
     	
-    print_new_line
-    	
+    #print_new_line
+    print_string(decimal_prompt)	
     
     get_decimal: 
     	andi $t3, $t5, 0x8000 # Put MSB to $t3
@@ -129,7 +140,5 @@
      
     invalid_input:
         # Print invalid prompt 
-        li $v0, 4
-        la $a0, invalid_prompt
-        syscall        
+        print_string(invalid_prompt)        
         j get_input  # Jump back to get_input
