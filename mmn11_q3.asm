@@ -1,3 +1,7 @@
+# description:
+# This program takes a 4 digit number from the user.
+# Then it prints its binary value, its reverse binary value and the decimal value of the reverse binary value.
+
 # Registers:
 # $t0 = user's number  
 # $t1 = counter for 16 bits
