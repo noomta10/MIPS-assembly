@@ -2,10 +2,13 @@
 # $t0 = copy of bool array
 # $t1 = counter for number of digits
 # $t2 = store user's character input
+# $t3 = first user's digit
+# $t4 = second user's digit
+# $t5 = third user's digit 
 
 .macro  print_string(%x)
     # Print new line
-    li $v0,11
+    li $v0, 11
     li $a0,'\n'
     syscall
     # Print string
@@ -18,7 +21,7 @@
 .data
     input_prompt: .asciiz "Enter 3 different digits:\n"
     invalid_character_prompt: "Invalid digit. Digit must be between 0 and 9:\n"
-    done_getting_input_prompt: "Done Getting input\n"
+    not_unique_prompt: "Invalid input. Digits must be unique.\n"
     bool: .space 3
 
 
@@ -26,6 +29,7 @@
     main:   
     	la $a0, bool  # Put bool in $a0 for get_number use
     	li $t1, 0 # Initialize digits counter to 0
+    	
     	   	
     get_numbers:
         	print_string(input_prompt)
@@ -54,7 +58,6 @@
     	j get_digit_loop
   
     done_getting_input:
-   	print_string(done_getting_input_prompt)
       	# Print the value stored in the register
    	 addi $t0, $t0, -3 # Go back to beginning of bool
    	 # Store digits in registers
@@ -62,14 +65,18 @@
    	 lb $t4, 0x01($t0)
    	 lb $t5, 0x02($t0)
    	 # Check uniqueness
-   	 beq $t3, $t4, get_numbers 
-   	 beq $t3, $t5, get_numbers     
-   	 beq $t4, $t5, get_numbers 
+   	 beq $t3, $t4, not_unique 
+   	 beq $t3, $t5, not_unique     
+   	 beq $t4, $t5, not_unique 
    	j exit_program
       
+    not_unique:
+    	print_string(not_unique_prompt)
+    	j main   	
+    
     invalid_input:
     	print_string(invalid_character_prompt)
-    	j get_digit_loop
+    	j main
     	
     exit_program:
    	li $v0, 10
