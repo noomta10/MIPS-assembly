@@ -23,17 +23,21 @@
     invalid_character_prompt: "Invalid digit. Digit must be between 0 and 9:\n"
     not_unique_prompt: "Invalid input. Digits must be unique.\n"
     bool: .space 3
+    debug: .asciiz "debug\n"
 
 
 .text
     main:   
-    	la $a0, bool  # Put bool in $a0 for get_number use
-    	li $t1, 0 # Initialize digits counter to 0
+    	jal get_numbers
+    	print_string(debug)
+    	j exit_program
     	
     	   	
     get_numbers:
+    	la $t0, bool  # Put bool in $a0 for get_number use
+    	li $t1, 0 # Initialize digits counter to 0
         	print_string(input_prompt)
-    	move $t0, $a0 # Copy bool array to $t0  
+    	#move $t0, $a0 # Copy bool array to $t0  
     	j get_digit_loop   	
     
     get_digit_loop:
@@ -48,8 +52,8 @@
         syscall	  
      
     validate_digit:
-        	bgt $t2, '9', invalid_input	
-    	blt $t2, '0', invalid_input   	
+        	bgt $t2, '9', invalid_character
+    	blt $t2, '0', invalid_character	
 	      	
     valid_digit:
         sb $t2, 0($t0) # Store digit in bool array
@@ -68,15 +72,15 @@
    	 beq $t3, $t4, not_unique 
    	 beq $t3, $t5, not_unique     
    	 beq $t4, $t5, not_unique 
-   	j exit_program
+   	jr $ra
       
     not_unique:
     	print_string(not_unique_prompt)
-    	j main   	
+    	j get_numbers  	
     
-    invalid_input:
+    invalid_character:
     	print_string(invalid_character_prompt)
-    	j main
+    	j get_numbers 
     	
     exit_program:
    	li $v0, 10
