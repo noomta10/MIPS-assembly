@@ -4,7 +4,11 @@
 # $t2 = store user's character input
 # $t3 = first user's digit
 # $t4 = second user's digit
-# $t5 = third user's digit 
+# $t5 = third user's digit
+# $t6 = copy of guess array 
+# $t7 = first guessed digit
+# $t8 = second guessed digit
+# $t9 = third guessed digit
 
 .macro  print_string(%x)
     # Print new line
@@ -20,27 +24,32 @@
 
 .data
     input_prompt: .asciiz "Enter 3 different digits:\n"
-    invalid_character_prompt: "Invalid digit. Digit must be between 0 and 9:\n"
-    not_unique_prompt: "Invalid input. Digits must be unique.\n"
+    invalid_character_prompt: .asciiz "Invalid digit. Digit must be between 0 and 9:\n"
+    not_unique_prompt: .asciiz "Invalid input. Digits must be unique.\n"
+    get_guess_prompt:  .asciiz "Guess my number: " 
     bool: .space 3
+    guess: .space 3
     debug: .asciiz "debug\n"
 
 
 .text
     main:   
-    	jal get_numbers
-    	print_string(debug)
+    	# Argumnets for procedures 
+    	la $a1, bool
+    	la $a2, guess       	  	
+    	jal get_number # Get input   
+    	jal get_guess # Start guessing
     	j exit_program
     	    	   	
-    get_numbers:
-    	la $t0, bool  # Put bool in $a0 for get_number use
+    get_number:
+    	move $t0, $a1 # Store bool array in $t0
     	li $t1, 0 # Initialize digits counter to 0
         	print_string(input_prompt) 
     	j get_digit_loop   	
     
     get_digit_loop:
         # Get digit
-    	bge $t1, 3, done_getting_input
+    	bge $t1, 3, check_uniqueness
     	li $v0, 12
     	syscall 
     	move $t2, $v0
@@ -59,28 +68,43 @@
     	addi $t1, $t1, 1 # Add one to digits counter
     	j get_digit_loop
   
-    done_getting_input:
-   	 addi $t0, $t0, -3 # Go back to the beginning of bool
-   	 # Store digits in registers
-   	 lb $t3, 0x00($t0)
-   	 lb $t4, 0x01($t0)
-   	 lb $t5, 0x02($t0)
-   	 # Check uniqueness
-   	 beq $t3, $t4, not_unique 
-   	 beq $t3, $t5, not_unique     
-   	 beq $t4, $t5, not_unique 
-   	jr $ra
+    check_uniqueness:
+   	# Store digits in registers
+   	lb $t3, 0x00($a1)
+   	lb $t4, 0x01($a1)
+   	lb $t5, 0x02($a1)
+   	# Check uniqueness
+   	beq $t3, $t4, not_unique 
+   	beq $t3, $t5, not_unique     
+   	beq $t4, $t5, not_unique 
+	jr $ra
       
     not_unique:
     	# When digits are not unique, print an error message and ask again for input
     	print_string(not_unique_prompt)
-    	j get_numbers  	
+    	j get_number
     
     invalid_character:
     	# When characters are not in range, print an error message and ask again for input
     	print_string(invalid_character_prompt)
-    	j get_numbers 
-    	
+    	j get_number
+    
+    get_guess:
+    	move $t0, $a1 # Store bool array in $t0
+    	move $t6, $a2 # Store guess array in $t6	
+    	print_string(get_guess_prompt)
+    	li $v0, 8
+    	syscall
+    	move $t6, $v0
+    	# Store guessed digits in registers
+   	lb $t7, 0x00($a2)
+   	lb $t8, 0x01($a2)
+   	lb $t9, 0x02($a2)
+   	li $v0, 11
+   	move $a0, $t7
+   	syscall
+   	
+    			
     exit_program:
    	li $v0, 10
    	syscall
