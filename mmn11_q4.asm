@@ -1,7 +1,7 @@
 # Registers:
 # $t0 = copy of bool array
-# $t1 = counter for number of digits
-# $t2 = store user's character input
+# $t1 = counter for number of digits, and counter for number of bool
+# $t2 = store user's character input, and counter for number of p
 # $t3 = first user's digit
 # $t4 = second user's digit
 # $t5 = third user's digit
@@ -28,7 +28,7 @@
     not_unique_prompt: .asciiz "Invalid input. Digits must be unique.\n"
     get_guess_prompt:  .asciiz "Guess my number: " 
     bool: .space 3
-    guess: .space 3
+    guess: .space 4
     debug: .asciiz "debug\n"
 
 
@@ -92,18 +92,54 @@
     get_guess:
     	move $t0, $a1 # Store bool array in $t0
     	move $t6, $a2 # Store guess array in $t6	
+    	
+    	# Get user's guess
     	print_string(get_guess_prompt)
     	li $v0, 8
+    	la $a0, ($t6)
     	syscall
-    	move $t6, $v0
+   	# Debug guess
+    	print_string(guess)  	
     	# Store guessed digits in registers
    	lb $t7, 0x00($a2)
    	lb $t8, 0x01($a2)
    	lb $t9, 0x02($a2)
-   	li $v0, 11
-   	move $a0, $t7
+   	j compare
+   	  
+    compare:
+        move $t0, $a1 # Store bool array in $t0
+        move $t6, $a2 # Store guess array in $t6	
+        # Initialize bool counter and p counter
+	li $t1, 0
+   	li $t2, 0
+   	jal first_character_check
+   	# Print number of bools
+   	li $v0, 1
+   	move $a0, $t1
    	syscall
+   	j exit_program
    	
+    first_character_check:
+   	beq $t7, $t3,  first_character_is_bool
+   	j second_character_check
+   
+    first_character_is_bool:
+    	addi $t1, $t1, 1
+   	
+    second_character_check:   
+   	beq $t8, $t4, second_character_is_bool
+ 	j third_character_check
+ 
+    second_character_is_bool:
+    	addi $t1, $t1, 1	
+ 		
+    third_character_check:   
+   	beq $t9, $t5, third_character_is_bool
+ 	jr $ra
+ 
+    third_character_is_bool:
+    	addi $t1, $t1, 1
+    	jr $ra
     			
     exit_program:
    	li $v0, 10

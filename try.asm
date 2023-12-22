@@ -1,25 +1,23 @@
-    .data
-array:  .space 3    # Allocate space for 3 characters
-
-    .text
-    .globl main
+.data
+input_string: .space 4      # Allocate space for a 4-byte string (3 characters + null terminator)
+buffer: .space 4             # Buffer to store user input as a word
+.text
+.globl main
 
 main:
-    li $v0, 12          # syscall code 12 for reading a character
-    li $t0, 3           # Counter to read 3 characters
-    la $t1, array       # Load address of array into $t1
+    li $v0, 8                 # System call code for reading string
+    la $a0, buffer            # Load the address of the buffer into $a0
+    li $a1, 3                 # Maximum number of characters to read
+    syscall                   # Perform the syscall to read the string
 
-read_loop:
-    syscall             # Read a character
-    sb $v0, ($t1)       # Store the character in the array
-    addi $t0, $t0, -1   # Decrement counter
-    addi $t1, $t1, 1    # Move to the next element in the array
-    bnez $t0, read_loop # Loop until 3 characters are read
+    lw $t0, buffer            # Load the word (user input) into $t0
+    #sw $t0, buffer     # Store the word in the input_string array
 
-    # Printing the array
-    li $v0, 4           # syscall code 4 for printing string
-    la $a0, array       # Load address of array into $a0
-    syscall             # Print the array
+    # Print the array (for verification)
+    li $v0, 4                 # System call code for printing string
+    la $a0, buffer      # Load the address of the array to print
+    syscall
 
-    li $v0, 10          # syscall code 10 for exit
-    syscall             # Exit the program
+    # Exit program
+    li $v0, 10                # System call code for exit
+    syscall
