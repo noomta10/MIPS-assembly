@@ -31,13 +31,11 @@
     	jal get_numbers
     	print_string(debug)
     	j exit_program
-    	
-    	   	
+    	    	   	
     get_numbers:
     	la $t0, bool  # Put bool in $a0 for get_number use
     	li $t1, 0 # Initialize digits counter to 0
-        	print_string(input_prompt)
-    	#move $t0, $a0 # Copy bool array to $t0  
+        	print_string(input_prompt) 
     	j get_digit_loop   	
     
     get_digit_loop:
@@ -62,8 +60,7 @@
     	j get_digit_loop
   
     done_getting_input:
-      	# Print the value stored in the register
-   	 addi $t0, $t0, -3 # Go back to beginning of bool
+   	 addi $t0, $t0, -3 # Go back to the beginning of bool
    	 # Store digits in registers
    	 lb $t3, 0x00($t0)
    	 lb $t4, 0x01($t0)
@@ -75,10 +72,12 @@
    	jr $ra
       
     not_unique:
+    	# When digits are not unique, print an error message and ask again for input
     	print_string(not_unique_prompt)
     	j get_numbers  	
     
     invalid_character:
+    	# When characters are not in range, print an error message and ask again for input
     	print_string(invalid_character_prompt)
     	j get_numbers 
     	
