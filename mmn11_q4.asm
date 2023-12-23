@@ -53,14 +53,10 @@
     	bge $t1, 3, check_uniqueness
     	li $v0, 12
     	syscall 
-    	move $t2, $v0
-    	# Print new line
-   	li $v0, 11
-    	li $a0,'\n'
-        syscall	  
+    	move $t2, $v0	  
      
     validate_digit:
-        	bgt $t2, '9', invalid_character
+        bgt $t2, '9', invalid_character
     	blt $t2, '0', invalid_character	
 	      	
     valid_digit:
@@ -192,7 +188,7 @@
         j print_bools
 
     print_ps:
-	bnez, $t2, print_ps_loop # Continue printing as long as bools counter is not 0
+	bnez, $t2, print_ps_loop # Continue printing as long as ps counter is not 0
         jr $ra
     
     print_ps_loop:
