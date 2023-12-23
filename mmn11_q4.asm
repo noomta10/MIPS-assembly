@@ -98,9 +98,7 @@
     	print_string(get_guess_prompt)
     	li $v0, 8
     	la $a0, ($t6)
-    	syscall
-   	# Debug guess
-    	print_string(guess)  	
+    	syscall	
     	# Store guessed digits in registers
    	lb $t7, 0x00($a2)
    	lb $t8, 0x01($a2)
@@ -115,19 +113,8 @@
    	li $t2, 0
    	jal first_character_bool_check
    	jal first_character_p_check
-   	
-   	# Print number of bools
-   	print_string(number_of_bools_prompt)
-   	li $v0, 1
-   	move $a0, $t1
-   	syscall
+   	jal check_no_bools
    	jal print_bools
-   	
-   	# Print number of p 
-   	print_string(number_of_p_prompt)
-   	li $v0, 1
-   	move $a0, $t2
-   	syscall
    	jal print_ps
    	j exit_program
    	
@@ -178,6 +165,21 @@
     	addi, $t2, $t2, 1
     	jr $ra		
     	
+    check_no_bools:
+    	beqz $t1, check_no_ps
+    	jr $ra
+    
+    check_no_ps:
+    	beqz $t2, print_no_matches
+    	jr $ra
+    
+    print_no_matches:
+    	li $v0, 11
+    	li $a0, 'n'
+    	syscall
+    	j get_guess
+    
+    
     print_bools:
 	bnez, $t1, print_bools_loop # Continue printing as long as bools counter is not 0
         jr $ra
