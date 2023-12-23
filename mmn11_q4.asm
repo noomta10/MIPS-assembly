@@ -1,3 +1,12 @@
+# Name: Noam Tamir 213712284
+# Due date: 14.01.2024
+
+# Description:
+# This program takes a 3 digit number from the user. digits are unique and witin the range '0'-'9'.
+# Then it plays 'Bool-Pgia' with user's guesses, it prints 'b' for every exact match, 'p' for every match, and 'n' for no matches.
+# The game continues until the user succeeds to guess the number that was entered in the beginning of the game.	
+# Finally, the user can choose whether to continue for another game or end the game.
+
 # Registers:
 # $t0 = copy of bool array
 # $t1 = counter for number of digits, and counter for number of bool
