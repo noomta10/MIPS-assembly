@@ -115,7 +115,7 @@
    	jal check_no_bools
    	jal print_bools
    	jal print_ps
-   	j exit_program
+   	j get_guess
    	
     first_character_bool_check:
    	beq $t7, $t3,  first_character_is_bool
@@ -138,10 +138,6 @@
     third_character_is_bool:
     	addi $t1, $t1, 1
     	jr $ra
-    	
-    bingo: 
-    	li $v0, -1
-    	j get_guess
     		
     first_character_p_check:
     	beq $t7, $t4, first_character_is_p
@@ -167,7 +163,11 @@
     third_character_is_p: 
     	addi, $t2, $t2, 1
     	jr $ra		
-    	
+    
+    bingo: 
+    	li $v0, -1
+    	j get_guess
+    		
     check_no_bools:
     	beqz $t1, check_no_ps
     	jr $ra
