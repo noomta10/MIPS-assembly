@@ -30,7 +30,8 @@
     bool: .space 3
     guess: .space 4
     debug: .asciiz "debug\n"
-
+    number_of_bools_prompt: .asciiz "number of bools: "
+    number_of_p_prompt: .asciiz "number of p: "
 
 .text
     main:   
@@ -112,35 +113,93 @@
         # Initialize bool counter and p counter
 	li $t1, 0
    	li $t2, 0
-   	jal first_character_check
+   	jal first_character_bool_check
+   	jal first_character_p_check
+   	
    	# Print number of bools
+   	print_string(number_of_bools_prompt)
    	li $v0, 1
    	move $a0, $t1
    	syscall
+   	jal print_bools
+   	
+   	# Print number of p 
+   	print_string(number_of_p_prompt)
+   	li $v0, 1
+   	move $a0, $t2
+   	syscall
+   	jal print_ps
    	j exit_program
    	
-    first_character_check:
+    first_character_bool_check:
    	beq $t7, $t3,  first_character_is_bool
-   	j second_character_check
+   	j second_character_bool_check
    
     first_character_is_bool:
     	addi $t1, $t1, 1
    	
-    second_character_check:   
+    second_character_bool_check:   
    	beq $t8, $t4, second_character_is_bool
- 	j third_character_check
+ 	j third_character_bool_check
  
     second_character_is_bool:
     	addi $t1, $t1, 1	
  		
-    third_character_check:   
+    third_character_bool_check:   
    	beq $t9, $t5, third_character_is_bool
  	jr $ra
  
     third_character_is_bool:
     	addi $t1, $t1, 1
     	jr $ra
-    			
+    		
+    first_character_p_check:
+    	beq $t7, $t4, first_character_is_p
+    	beq $t7, $t5, first_character_is_p
+    	j second_character_p_check
+    
+    first_character_is_p:
+    	addi, $t2, $t2, 1
+    	
+    second_character_p_check:
+    	beq $t8, $t3, second_character_is_p
+    	beq $t8, $t5, second_character_is_p
+    	j third_character_p_check
+    	
+    second_character_is_p: 
+    	addi, $t2, $t2, 1
+     
+    third_character_p_check:
+    	beq $t9, $t3, third_character_is_p
+    	beq $t9, $t4, third_character_is_p
+    	jr $ra
+    	
+    third_character_is_p: 
+    	addi, $t2, $t2, 1
+    	jr $ra		
+    	
+    print_bools:
+	bnez, $t1, print_bools_loop # Continue printing as long as bools counter is not 0
+        jr $ra
+    
+    print_bools_loop:
+        li $v0, 11
+        li $a0, 'b'
+        syscall
+        addi, $t1, $t1, -1
+        j print_bools
+
+    print_ps:
+	bnez, $t2, print_ps_loop # Continue printing as long as bools counter is not 0
+        jr $ra
+    
+    print_ps_loop:
+        li $v0, 11
+        li $a0, 'p'
+        syscall
+        addi, $t2, $t2, -1
+        j print_ps   					
+   					   					   					
     exit_program:
    	li $v0, 10
    	syscall
