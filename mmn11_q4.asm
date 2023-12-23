@@ -9,6 +9,9 @@
 # $t7 = first guessed digit
 # $t8 = second guessed digit
 # $t9 = third guessed digit
+# $a1 = bool array address
+# $a2 = guess array address
+
 
 .macro  print_string(%x)
     # Print new line
@@ -23,11 +26,13 @@
 
 
 .data
-    input_prompt: .asciiz "Enter 3 different digits:\n"
-    invalid_character_prompt: .asciiz "Invalid digit. Digit must be between 0 and 9:\n"
-    not_unique_prompt: .asciiz "Invalid input. Digits must be unique.\n"
-    get_guess_prompt:  .asciiz "Guess my number: " 
-    end_game_prompt: .asciiz "Bingo! Another game? "
+    input_prompt: .asciiz "\nEnter 3 different digits:\n"
+    invalid_character_prompt: .asciiz "Invalid digit. Digit must be between 0 and 9."
+    not_unique_prompt: .asciiz "Invalid input. Digits must be unique."
+    get_guess_prompt:  .asciiz "\nGuess my number: " 
+    bingo_prompt: .asciiz "Bingo!\n"
+    end_game_prompt: .asciiz "Another game? ('y' for yes, 'n' for no): "
+    invalid_option_prompt: .asciiz "Invalid option. Option must be 'y' or 'n'.\n"
     bool: .space 3
     guess: .space 4
     
@@ -37,36 +42,40 @@
     	# Argumnets for procedures 
     	la $a1, bool
     	la $a2, guess       	  	
-    	jal get_number # Get input   
+    	jal get_number # Get input
 
+    # Get guess
     call_get_guess:
-    	beq $v0, -1, handle_end_game
+    	beq $v0, -1, handle_end_game # If $v0 contains -1, handle end game
     	jal get_guess # Start guessing
-    	j exit_program
-    	    	   	
+    
+    # Get input from user	   	
     get_number:
     	move $t0, $a1 # Store bool array in $t0
     	li $t1, 0 # Initialize digits counter to 0
         print_string(input_prompt) 
-    	j get_digit_loop   	
+    	j get_number_loop   	
     
-    get_digit_loop:
-        # Get digit
+    # Loop to get 3 digits
+    get_number_loop:
     	bge $t1, 3, check_uniqueness
     	li $v0, 12
     	syscall 
     	move $t2, $v0	  
      
+    # Validate that the digit is a character between '0'-'9'
     validate_digit:
         bgt $t2, '9', invalid_character
     	blt $t2, '0', invalid_character	
-	      	
+	
+    # If the digit is valid, store it in bool array  	      	
     valid_digit:
         sb $t2, 0($t0) # Store digit in bool array
     	addi $t0, $t0, 1 # Move to next position in the array
     	addi $t1, $t1, 1 # Add one to digits counter
-    	j get_digit_loop
+    	j get_number_loop
   
+    # Check that each digit in bool is unique
     check_uniqueness:
    	# Store digits in registers
    	lb $t3, 0x00($a1)
@@ -78,16 +87,19 @@
    	beq $t4, $t5, not_unique 
 	jr $ra
       
+    # Handle when bool contains a digit that appears more than once
     not_unique:
-    	# When digits are not unique, print an error message and ask again for input
+    	# Print an error message and ask again for input
     	print_string(not_unique_prompt)
     	j get_number
     
+    # Handle when a character that is not in range was entered
     invalid_character:
-    	# When characters are not in range, print an error message and ask again for input
+    	# Print an error message and ask again for input
     	print_string(invalid_character_prompt)
     	j get_number
     
+    # Get user's guess
     get_guess:
     	beq $v0, -1, call_get_guess
     	move $t0, $a1 # Store bool array in $t0
@@ -102,7 +114,8 @@
    	lb $t8, 0x01($a2)
    	lb $t9, 0x02($a2)
    	j compare
-   	  
+   	
+    # Compare digits from array bool to digits from array guess
     compare:
         move $t0, $a1 # Store bool array in $t0
         move $t6, $a2 # Store guess array in $t6	
@@ -117,6 +130,7 @@
    	jal print_ps
    	j get_guess
    	
+    # Check bools
     first_character_bool_check:
    	beq $t7, $t3,  first_character_is_bool
    	j second_character_bool_check
@@ -138,7 +152,8 @@
     third_character_is_bool:
     	addi $t1, $t1, 1
     	jr $ra
-    		
+
+    # Check ps		    		
     first_character_p_check:
     	beq $t7, $t4, first_character_is_p
     	beq $t7, $t5, first_character_is_p
@@ -164,24 +179,29 @@
     	addi, $t2, $t2, 1
     	jr $ra		
     
+    # When user guessed 3 bools, return value -1 in $v0 to get_guess
     bingo: 
     	li $v0, -1
     	j get_guess
-    		
+    	
+    # Check if there are any bools			
     check_no_bools:
     	beqz $t1, check_no_ps
     	jr $ra
-    
+
+    # Check if there are any ps    
     check_no_ps:
     	beqz $t2, print_no_matches
     	jr $ra
     
+    # Print 'n' when no bools or ps in guess
     print_no_matches:
     	li $v0, 11
     	li $a0, 'n'
     	syscall
     	j get_guess
       
+    # Print bools  
     print_bools:
 	bnez, $t1, print_bools_loop # Continue printing as long as bools counter is not 0
         jr $ra
@@ -193,6 +213,7 @@
         addi, $t1, $t1, -1
         j print_bools
 
+    # Print ps
     print_ps:
 	bnez, $t2, print_ps_loop # Continue printing as long as ps counter is not 0
         jr $ra
@@ -204,13 +225,24 @@
         addi, $t2, $t2, -1
         j print_ps   					
  
+    # Handle end game
     handle_end_game:
+    	print_string(bingo_prompt)
+    	j ask_for_another_game
+    
+    ask_for_another_game:
     	print_string(end_game_prompt)
     	li $v0, 12
     	syscall
     	beq $v0, 'y', main
     	beq $v0, 'n', exit_program
-   					   					   					  					   					   					  					   					   					  					   					   					
+    	j invalid_option
+    
+    invalid_option:
+    	print_string(invalid_option_prompt)
+    	j ask_for_another_game
+   	
+    # Exit program				   					   					  					   					   					  					   					   					  					   					   					
     exit_program:
    	li $v0, 10
    	syscall
