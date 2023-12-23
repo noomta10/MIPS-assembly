@@ -3,7 +3,7 @@
 
 # Description:
 # This program takes a 3 digit number from the user. digits are unique and witin the range '0'-'9'.
-# Then it plays 'Bool-Pgia' with user's guesses, it prints 'b' for every exact match, 'p' for every match, and 'n' for no matches.
+# Then it plays 'Bool-Pgia' with user's guesses (assuming that are valid), prints 'b' for every exact match, 'p' for every match, and 'n' for no matches.
 # The game continues until the user succeeds to guess the number that was entered in the beginning of the game.	
 # Finally, the user can choose whether to continue for another game or end the game.
 
@@ -56,7 +56,7 @@
     # Get guess
     call_get_guess:
     	beq $v0, -1, handle_end_game # If $v0 contains -1, handle end game
-    	jal get_guess # Start guessing
+    	jal get_guess 
     
     # Get input from user	   	
     get_number:
@@ -65,9 +65,9 @@
         print_string(input_prompt) 
     	j get_number_loop   	
     
-    # Loop to get 3 digits
+    # Loop to get 3 digits characaters
     get_number_loop:
-    	bge $t1, 3, check_uniqueness
+    	bge $t1, 3, check_uniqueness # if 3 digits were read, continue and check their uniqueness
     	li $v0, 12
     	syscall 
     	move $t2, $v0	  
@@ -110,45 +110,46 @@
     
     # Get user's guess
     get_guess:
-    	beq $v0, -1, call_get_guess
+    	beq $v0, -1, call_get_guess # if $v0 contains -1, user guessed correctly, return to main
     	move $t0, $a1 # Store bool array in $t0
     	move $t6, $a2 # Store guess array in $t6	
-    	# Get user's guess
+    	# Get user's guess into guess array
     	print_string(get_guess_prompt)
     	li $v0, 8
     	la $a0, ($t6)
     	syscall	
     	# Store guessed digits in registers
-   	lb $t7, 0x00($a2)
-   	lb $t8, 0x01($a2)
-   	lb $t9, 0x02($a2)
+   	lb $t7, 0x00($t6)
+   	lb $t8, 0x01($t6)
+   	lb $t9, 0x02($t6)
    	j compare
    	
-    # Compare digits from array bool to digits from array guess
+    # Compare digits from bool array to digits from guess array
     compare:
         move $t0, $a1 # Store bool array in $t0
         move $t6, $a2 # Store guess array in $t6	
         # Initialize bool counter and p counter
 	li $t1, 0
-   	li $t2, 0
-   	jal first_character_bool_check
-   	beq $t1, 3, bingo
-   	jal first_character_p_check
-   	jal check_no_bools
+   	li $t2, 0  	
+   	jal first_character_bool_check # Check bools	
+   	beq $t1, 3, bingo # Check if there are 3 bools   	
+   	jal first_character_p_check # Check ps   	
+   	jal check_no_bools # Check no matches (no bools and no ps)
+   	# Print 'b' and 'p' 
    	jal print_bools
-   	jal print_ps
-   	j get_guess
+   	jal print_ps   	
+   	j get_guess # Continue getting guesses if user did not guess correctly yet
    	
     # Check bools
     first_character_bool_check:
-   	beq $t7, $t3,  first_character_is_bool
-   	j second_character_bool_check
+   	beq $t7, $t3,  first_character_is_bool # Compare first digit in bool array to first digit in guess array
+   	j second_character_bool_check # If they are not equal, continue to compare second digits
    
     first_character_is_bool:
-    	addi $t1, $t1, 1
+    	addi $t1, $t1, 1 # If digits are equal, add 1 to bool counter
    	
-    second_character_bool_check:   
-   	beq $t8, $t4, second_character_is_bool
+    second_character_bool_check: 
+   	beq $t8, $t4, second_character_is_bool  
  	j third_character_bool_check
  
     second_character_is_bool:
@@ -164,12 +165,12 @@
 
     # Check ps		    		
     first_character_p_check:
-    	beq $t7, $t4, first_character_is_p
-    	beq $t7, $t5, first_character_is_p
-    	j second_character_p_check
+    	beq $t7, $t4, first_character_is_p # Compare first digit in guess array to second digit in bool array
+    	beq $t7, $t5, first_character_is_p # Compare first digit in guess array to third digit in bool array
+    	j second_character_p_check  # If they are not equal, continue to compare second digits
     
     first_character_is_p:
-    	addi, $t2, $t2, 1
+    	addi, $t2, $t2, 1  #If digits are equal, add 1 to p counter
     	
     second_character_p_check:
     	beq $t8, $t3, second_character_is_p
@@ -239,6 +240,7 @@
     	print_string(bingo_prompt)
     	j ask_for_another_game
     
+    # Ask if the user wants to continue for another game
     ask_for_another_game:
     	print_string(end_game_prompt)
     	li $v0, 12
@@ -247,6 +249,7 @@
     	beq $v0, 'n', exit_program
     	j invalid_option
     
+    # If an invalid option was entered, ask again for input
     invalid_option:
     	print_string(invalid_option_prompt)
     	j ask_for_another_game
