@@ -8,7 +8,7 @@
 # $t6 = copy of guess array 
 # $t7 = first guessed digit
 # $t8 = second guessed digit
-# $t9 = third guessed digit tryyy
+# $t9 = third guessed digit
 
 .macro  print_string(%x)
     # Print new line
